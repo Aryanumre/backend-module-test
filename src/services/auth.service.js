@@ -1,14 +1,16 @@
-const bcrypt = require("bcryptjs");
 const User = require("../models/user.model");
+const bcrypt = require("bcryptjs");
 const generateToken = require("../utils/generateToken");
 
-// REGISTER
+// ================= REGISTER =================
 const registerUserService = async (name, email, password) => {
   const existingUser = await User.findOne({ email });
+
   if (existingUser) {
     throw new Error("User already exists");
   }
 
+  // 🔐 Hash password
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -18,13 +20,10 @@ const registerUserService = async (name, email, password) => {
     password: hashedPassword,
   });
 
-  const userObj = user.toObject();
-  delete userObj.password;
-
-  return userObj;
+  return user;
 };
 
-// LOGIN
+// ================= LOGIN =================
 const loginUserService = async (email, password) => {
   const user = await User.findOne({ email });
 
@@ -32,6 +31,7 @@ const loginUserService = async (email, password) => {
     throw new Error("Invalid email or password");
   }
 
+  // 🔐 Compare password
   const isMatch = await bcrypt.compare(password, user.password);
 
   if (!isMatch) {
@@ -41,11 +41,13 @@ const loginUserService = async (email, password) => {
   const token = generateToken(user._id);
 
   return {
-    id: user._id,
     name: user.name,
     email: user.email,
     token,
   };
 };
 
-module.exports = { registerUserService, loginUserService };
+module.exports = {
+  registerUserService,
+  loginUserService,
+};
