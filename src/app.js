@@ -1,6 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
+const bookRoutes = require("./routes/book.routes");
 
 const authRoutes = require("./routes/auth.routes");
 const errorHandler = require("./middleware/error.middleware");
@@ -15,6 +16,7 @@ app.use(express.json());
 
 // Routes
 app.use("/api/users", authRoutes);
+app.use("/api/books", bookRoutes);
 
 // Health check route
 app.get("/", (req, res) => {
